@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Football Team Organizer</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            color: #333;
+            margin: 0;
+            padding: 20px;
+        }
+        h1 {
+            text-align: center;
+            color: #007BFF;
+        }
+        #inputArea {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        #namesInput {
+            width: 300px;
+            height: 150px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        #submitButton {
+            margin-top: 10px;
+            padding: 10px 20px;
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        #outputArea {
+            margin-top: 20px;
+        }
+        .team {
+            margin: 10px 0;
+            padding: 10px;
+            background-color: #e9ecef;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Football Team Organizer</h1>
+    <div id="inputArea">
+        <textarea id="namesInput" placeholder="Paste names here... (e.g., 1. Pavel, 2. Shaf, 3. Steve)"></textarea>
+        <button id="submitButton">Create Teams</button>
+    </div>
+
+    <div id="outputArea"></div>
+
+    <script>
+        document.getElementById('submitButton').addEventListener('click', function() {
+            const namesInput = document.getElementById('namesInput').value;
+            const namesArray = namesInput.split('\n').map(name => name.replace(/^\d+\.\s*/, '').trim()).filter(name => name);
+            const teams = [];
+
+            // Create teams of 7
+            for (let i = 0; i < namesArray.length; i += 7) {
+                teams.push(namesArray.slice(i, i + 7));
+            }
+
+            // Clear output area
+            const outputArea = document.getElementById('outputArea');
+            outputArea.innerHTML = '';
+
+            // Display teams
+            teams.forEach((team, index) => {
+                const teamDiv = document.createElement('div');
+                teamDiv.className = 'team';
+                teamDiv.innerHTML = `<strong>Team ${index + 1}:</strong> ${team.join(', ')}`;
+                outputArea.appendChild(teamDiv);
+            });
+        });
+    </script>
+
+</body>
+</html>
