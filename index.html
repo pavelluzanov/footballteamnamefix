@@ -7,14 +7,14 @@
     <style>
         body {
             font-family: Arial, sans-serif;
-            background-color: #f4f4f4;
-            color: #333;
+            background-color: #121212;
+            color: #E0E0E0;
             margin: 0;
             padding: 20px;
         }
         h1 {
             text-align: center;
-            color: #007BFF;
+            color: #BB86FC;
         }
         #inputArea {
             display: flex;
@@ -26,13 +26,19 @@
             width: 300px;
             height: 150px;
             padding: 10px;
-            border: 1px solid #ccc;
+            background-color: #1E1E1E;
+            color: #E0E0E0;
+            border: 1px solid #BB86FC;
             border-radius: 5px;
         }
-        #submitButton {
+        .button-container {
+            display: flex;
+            gap: 10px;
             margin-top: 10px;
+        }
+        button {
             padding: 10px 20px;
-            background-color: #007BFF;
+            background-color: #BB86FC;
             color: white;
             border: none;
             border-radius: 5px;
@@ -44,43 +50,108 @@
         .team {
             margin: 10px 0;
             padding: 10px;
-            background-color: #e9ecef;
+            background-color: #1E1E1E;
+            color: #E0E0E0;
             border-radius: 5px;
+        }
+        #copyButton {
+            display: none;
+            margin-top: 10px;
+            background-color: #03DAC6;
         }
     </style>
 </head>
 <body>
 
     <h1>Buncit Team Organizer</h1>
+    <p style="text-align: center; color: #FF6B6B;">Minimum players: 18 | Maximum players: 24</p>
     <div id="inputArea">
         <textarea id="namesInput" placeholder="Paste names here... (e.g., 1. Pavel, 2. Shaf, 3. Steve)"></textarea>
-        <button id="submitButton">Create Teams</button>
+        <div class="button-container">
+            <button id="submitButton">Create Teams</button>
+            <button id="randomizeButton">Randomize Teams</button>
+        </div>
+        <button id="copyButton">Copy Teams</button>
     </div>
 
     <div id="outputArea"></div>
 
     <script>
-        document.getElementById('submitButton').addEventListener('click', function() {
+        function processNames(randomize = false) {
             const namesInput = document.getElementById('namesInput').value;
-            const namesArray = namesInput.split('\n').map(name => name.replace(/^\d+\.\s*/, '').trim()).filter(name => name);
-            const teams = [];
-
-            // Create teams of 7
-            for (let i = 0; i < namesArray.length; i += 7) {
-                teams.push(namesArray.slice(i, i + 7));
+            const filteredInput = namesInput.split(/\n/);
+            const validNames = [];
+            
+            for (let line of filteredInput) {
+                if (/^Waitlist:/i.test(line)) break;
+                const match = line.match(/^\d+\.\s*(.+)$/);
+                if (match) validNames.push(match[1].trim());
             }
-
-            // Clear output area
+            
+            if (randomize) {
+                validNames.sort(() => Math.random() - 0.5);
+            }
+            
+            if (validNames.length < 18 || validNames.length > 24) {
+                alert('Please enter between 18 and 24 players.');
+                return;
+            }
+            
+            const teamNames = ["Team Black ⚫", "Team Red 🔴", "Team White ⚪"];
+            let teams = [];
+            
+            const teamStructures = {
+                18: [6, 6, 6],
+                19: [7, 6, 6],
+                20: [7, 7, 6],
+                21: [7, 7, 7],
+                22: [8, 7, 7],
+                23: [8, 8, 7],
+                24: [8, 8, 8]
+            };
+            
+            let structure = teamStructures[validNames.length];
+            let index = 0;
+            structure.forEach(size => {
+                teams.push(validNames.slice(index, index + size));
+                index += size;
+            });
+            
             const outputArea = document.getElementById('outputArea');
             outputArea.innerHTML = '';
-
-            // Display teams
+            
+            let teamsText = '';
             teams.forEach((team, index) => {
                 const teamDiv = document.createElement('div');
                 teamDiv.className = 'team';
-                teamDiv.innerHTML = `<strong>Team ${index + 1}:</strong> ${team.join(', ')}`;
+                const teamLabel = teamNames[index % teamNames.length] || `Team ${index + 1}`;
+                
+                const teamList = team.map((name, i) => `${i + 1}. ${name}`).join('\n');
+                teamsText += `${teamLabel}:
+${teamList}\n\n`;
+                
+                teamDiv.innerHTML = `<strong>${teamLabel}:</strong> ${team.join(', ')}`;
                 outputArea.appendChild(teamDiv);
             });
+            
+            if (teams.length > 0) {
+                document.getElementById('copyButton').style.display = 'block';
+                document.getElementById('copyButton').onclick = function() {
+                    navigator.clipboard.writeText(teamsText).then(() => {
+                        alert('Teams copied to clipboard!');
+                    });
+                };
+            } else {
+                document.getElementById('copyButton').style.display = 'none';
+            }
+        }
+        
+        document.getElementById('submitButton').addEventListener('click', function() {
+            processNames();
+        });
+        
+        document.getElementById('randomizeButton').addEventListener('click', function() {
+            processNames(true);
         });
     </script>
 
