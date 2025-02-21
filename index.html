@@ -59,6 +59,12 @@
             margin-top: 10px;
             background-color: #03DAC6;
         }
+        #errorMessage {
+            text-align: center;
+            color: #FF6B6B;
+            margin-top: 10px;
+            font-weight: bold;
+        }
     </style>
 </head>
 <body>
@@ -73,12 +79,15 @@
         </div>
         <button id="copyButton">Copy Teams</button>
     </div>
-
+    <p id="errorMessage"></p>
     <div id="outputArea"></div>
 
     <script>
         function processNames(randomize = false) {
             const namesInput = document.getElementById('namesInput').value;
+            const errorMessage = document.getElementById('errorMessage');
+            errorMessage.textContent = "";
+            
             const filteredInput = namesInput.split(/\n/);
             const validNames = [];
             
@@ -93,7 +102,9 @@
             }
             
             if (validNames.length < 18 || validNames.length > 24) {
-                alert('Please enter between 18 and 24 players.');
+                errorMessage.textContent = 'You do not have enough players! Please enter between 18 and 24 players.';
+                document.getElementById('outputArea').innerHTML = '';
+                document.getElementById('copyButton').style.display = 'none';
                 return;
             }
             
@@ -127,8 +138,7 @@
                 const teamLabel = teamNames[index % teamNames.length] || `Team ${index + 1}`;
                 
                 const teamList = team.map((name, i) => `${i + 1}. ${name}`).join('\n');
-                teamsText += `${teamLabel}:
-${teamList}\n\n`;
+                teamsText += `${teamLabel}:\n${teamList}\n\n`;
                 
                 teamDiv.innerHTML = `<strong>${teamLabel}:</strong> ${team.join(', ')}`;
                 outputArea.appendChild(teamDiv);
